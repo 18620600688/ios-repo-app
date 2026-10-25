@@ -21,10 +21,14 @@ jobs:
             "version": 1,
             "toolchain-bin-dir": "$TOOLCHAIN_BIN",
             "sdk": "$SDK",
-            "target": "arm64-apple-ios14.0"
+            "target": "arm64-apple-ios14.0",
+            "extra-cc-flags": [],
+            "extra-swiftc-flags": ["-static-stdlib"],
+            "extra-cpp-flags": [],
+            "dynamic-library-extension": ".dylib"
           }
           EOF
-          swift build -c release --destination destination.json -Xswiftc -static-stdlib
+          swift build -c release --destination destination.json
           echo "--- binary ---"
           ls -la .build/arm64-apple-ios14.0/release/RepoServerApp
 
