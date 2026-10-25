@@ -58,3 +58,15 @@ jobs:
         with:
           name: RepoServer-ipa
           path: RepoServer.ipa
+
+      - name: Publish as release asset (anonymous download)
+        run: |
+          set -e
+          TAG="ipa-$(date +%Y%m%d-%H%M%S)"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          gh release create "$TAG" RepoServer.ipa \
+            --repo "${{ github.repository }}" \
+            --title "RepoServer iOS IPA ($TAG)" \
+            --notes "自动构建：本地越狱源 App（最低 iOS 14），支持个人热点地址显示"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
