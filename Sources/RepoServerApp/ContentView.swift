@@ -63,7 +63,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("服务状态") {
+                Section(header: Text("服务状态")) {
                     HStack {
                         Circle()
                             .fill(m.isRunning ? Color.green : Color.red)
@@ -85,7 +85,7 @@ struct ContentView: View {
                         .disabled(!m.isRunning)
                 }
 
-                Section("仓库内容（Documents/Repo）") {
+                Section(header: Text("仓库内容（Documents/Repo）")) {
                     HStack {
                         Text("deb 包数量"); Spacer()
                         Text("\(m.debCount)").font(.system(.body, design: .monospaced))
@@ -102,7 +102,7 @@ struct ContentView: View {
                     }
                 }
 
-                Section("使用步骤") {
+                Section(header: Text("使用步骤")) {
                     Text("1. 电脑端把仓库内容导入 Documents/Repo（爱思助手 → 应用 → 本地源 → 文件）")
                     Text("2. 保持本 App 在前台（iOS 会挂起后台网络）")
                     Text("3. Sileo → 软件源 → 添加 http://127.0.0.1:8088")

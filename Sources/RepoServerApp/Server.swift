@@ -196,7 +196,7 @@ final class RepoHTTPServer {
     // MARK: - 目录列表 / 错误页 / MIME
 
     private func serveDirectory(_ url: URL, path: String, conn: NWConnection) {
-        let items = (try? FileManager.default.contentsOfDirectory(at: url)) ?? []
+        let items = (try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])) ?? []
         let base = path.hasSuffix("/") ? path : path + "/"
         let rows = items
             .sorted { $0.lastPathComponent < $1.lastPathComponent }
