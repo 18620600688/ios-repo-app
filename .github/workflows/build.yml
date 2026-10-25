@@ -23,7 +23,7 @@ jobs:
             "sdk": "$SDK",
             "target": "arm64-apple-ios14.0",
             "extra-cc-flags": [],
-            "extra-swiftc-flags": ["-static-stdlib"],
+            "extra-swiftc-flags": ["-Xlinker", "-rpath", "-Xlinker", "/usr/lib/swift"],
             "extra-cpp-flags": [],
             "dynamic-library-extension": ".dylib"
           }
