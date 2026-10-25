@@ -44,10 +44,14 @@ jobs:
           APP=Payload/RepoServer.app
           mkdir -p "$APP"
           cp "$BIN" "$APP/RepoServerApp"
+          chmod +x "$APP/RepoServerApp"
           cp AppInfo/Info.plist "$APP/Info.plist"
-          (cd Payload && zip -qry ../RepoServer.ipa .)
-          echo "--- ipa contents ---"
+          rm -f RepoServer.ipa
+          zip -qry RepoServer.ipa Payload
+          echo "--- ipa contents (must contain Payload/) ---"
           unzip -l RepoServer.ipa
+          unzip -l RepoServer.ipa | grep -q "Payload/RepoServer.app/" || { echo "::error::IPA missing Payload/ layer"; exit 1; }
+          plutil -p "$APP/Info.plist" | grep -q UIFileSharingEnabled || echo "::warning::UIFileSharingEnabled missing"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
