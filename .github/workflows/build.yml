@@ -1,0 +1,47 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build for iOS device (SwiftPM cross-compile)
+        run: |
+          set -e
+          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          TOOLCHAIN_BIN=$(dirname "$(xcrun -f swift)")
+          cat > destination.json <<EOF
+          {
+            "toolchain_bin_path": "$TOOLCHAIN_BIN",
+            "swift_bin_path": "$TOOLCHAIN_BIN/swift",
+            "sdk": "$SDK",
+            "target": "arm64-apple-ios14.0"
+          }
+          EOF
+          swift build -c release --destination destination.json -Xswiftc -static-stdlib
+          echo "--- binary ---"
+          ls -la .build/arm64-apple-ios14.0/release/RepoServerApp
+
+      - name: Assemble IPA
+        run: |
+          set -e
+          BIN=.build/arm64-apple-ios14.0/release/RepoServerApp
+          APP=Payload/RepoServer.app
+          mkdir -p "$APP"
+          cp "$BIN" "$APP/RepoServerApp"
+          cp AppInfo/Info.plist "$APP/Info.plist"
+          (cd Payload && zip -qry ../RepoServer.ipa .)
+          echo "--- ipa contents ---"
+          unzip -l RepoServer.ipa
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RepoServer-ipa
+          path: RepoServer.ipa
