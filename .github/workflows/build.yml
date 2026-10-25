@@ -18,9 +18,7 @@ jobs:
           TOOLCHAIN_BIN=$(dirname "$(xcrun -f swift)")
           cat > destination.json <<EOF
           {
-            "version": 1,
-            "toolchain_bin_path": "$TOOLCHAIN_BIN",
-            "swift_bin_path": "$TOOLCHAIN_BIN/swift",
+            "toolchain-bin-dir": "$TOOLCHAIN_BIN",
             "sdk": "$SDK",
             "target": "arm64-apple-ios14.0"
           }
