@@ -8,10 +8,16 @@ final class ServerModel: ObservableObject {
     @Published var debCount = 0
     @Published var repoBytes: Int64 = 0
     @Published var hasIndex = false
+    @Published var lanIP: String? = nil
 
     private let server = RepoHTTPServer()
 
     var url: String { "http://127.0.0.1:\(port)" }
+    /// 供同一 Wi-Fi 下其他手机访问的源地址
+    var lanURL: String? {
+        guard let ip = lanIP, !ip.isEmpty, port > 0 else { return nil }
+        return "http://\(ip):\(port)"
+    }
 
     init() {
         server.onChange = { [weak self] in self?.refresh() }
@@ -47,6 +53,7 @@ final class ServerModel: ObservableObject {
         repoBytes = bytes
         hasIndex = fm.fileExists(atPath: server.repoDir.appendingPathComponent("Packages").path)
             || fm.fileExists(atPath: server.repoDir.appendingPathComponent("dists/stable/Release").path)
+        lanIP = lanIPv4Address()
     }
 
     func openInSileo() {
@@ -81,6 +88,17 @@ struct ContentView: View {
                         Button("复制") { UIPasteboard.general.string = m.url }
                             .buttonStyle(.borderless).font(.footnote)
                     }
+                    HStack {
+                        Text("局域网地址")
+                        Spacer()
+                        Text(m.lanURL ?? "未连接 Wi-Fi")
+                            .font(.system(.footnote, design: .monospaced))
+                            .foregroundColor(m.lanURL == nil ? .secondary : .primary)
+                        if let lu = m.lanURL {
+                            Button("复制") { UIPasteboard.general.string = lu }
+                                .buttonStyle(.borderless).font(.footnote)
+                        }
+                    }
                     Button("在 Sileo 中打开此源") { m.openInSileo() }
                         .disabled(!m.isRunning)
                 }
@@ -105,7 +123,8 @@ struct ContentView: View {
                 Section(header: Text("使用步骤")) {
                     Text("1. 电脑端把仓库内容导入 Documents/Repo（爱思助手 → 应用 → 本地源 → 文件）")
                     Text("2. 保持本 App 在前台（iOS 会挂起后台网络）")
-                    Text("3. Sileo → 软件源 → 添加 http://127.0.0.1:8088")
+                    Text("3. 本机：Sileo 添加「本地源地址」127.0.0.1:8088")
+                    Text("4. 其他手机：连同一 Wi-Fi，Sileo 添加上面「局域网地址」；若连不上请检查路由器是否开了 AP 隔离")
                 }
             }
             .navigationTitle("本地越狱源")
