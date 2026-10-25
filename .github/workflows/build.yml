@@ -22,20 +22,25 @@ jobs:
             "toolchain-bin-dir": "$TOOLCHAIN_BIN",
             "sdk": "$SDK",
             "target": "arm64-apple-ios14.0",
-            "extra-cc-flags": [],
-            "extra-swiftc-flags": ["-Xlinker", "-rpath", "-Xlinker", "/usr/lib/swift"],
+            "extra-cc-flags": ["-isysroot", "$SDK"],
+            "extra-swiftc-flags": ["-sdk", "$SDK", "-target", "arm64-apple-ios14.0", "-Xlinker", "-syslibroot", "-Xlinker", "$SDK", "-Xlinker", "-rpath", "-Xlinker", "/usr/lib/swift"],
             "extra-cpp-flags": [],
             "dynamic-library-extension": ".dylib"
           }
           EOF
+          BIN_PATH=$(swift build -c release --destination destination.json --show-bin-path)
+          echo "bin-path: $BIN_PATH"
           swift build -c release --destination destination.json
-          echo "--- binary ---"
-          ls -la .build/arm64-apple-ios14.0/release/RepoServerApp
+          BIN="$BIN_PATH/RepoServerApp"
+          echo "--- verify platform (must show iphoneos) ---"
+          file "$BIN"
+          vtool -show-build "$BIN" 2>/dev/null || true
+          echo "BIN_PATH=$BIN_PATH" >> "$GITHUB_ENV"
 
       - name: Assemble IPA
         run: |
           set -e
-          BIN=.build/arm64-apple-ios14.0/release/RepoServerApp
+          BIN="$BIN_PATH/RepoServerApp"
           APP=Payload/RepoServer.app
           mkdir -p "$APP"
           cp "$BIN" "$APP/RepoServerApp"
